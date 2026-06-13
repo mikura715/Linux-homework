@@ -1,0 +1,58 @@
+services:
+  mysql-shop:
+    image: mysql:8.0
+    container_name: mysql-shop
+    environment:
+      MYSQL_ROOT_PASSWORD: shop123654
+      MYSQL_DATABASE: shop_mall
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    command:
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    restart: always
+    networks:
+      shop-network:
+      share-net:
+
+  shop-backend:
+    build: ./backend
+    container_name: shop-backend
+    depends_on:
+      - mysql-shop
+    environment:
+      DB_HOST: mysql-shop
+      DB_USER: root
+      DB_PWD: shop123654
+      DB_NAME: shop_mall
+      OLLAMA_API_URL: http://ollama-qwen3-mall:11434
+    ports:
+      - "8000:8000"
+    restart: always
+    networks:
+      shop-network:
+      share-net:
+
+  shop-frontend:
+    build: ./frontend
+    container_name: shop-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - shop-backend
+    restart: always
+    networks:
+      shop-network:
+      share-net:
+
+networks:
+  shop-network:
+  share-net:
+    external: true
+volumes:
+  mysql-data:

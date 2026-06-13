@@ -1,0 +1,18 @@
+services:
+  ollama-qwen3:
+    image: ollama/ollama:latest
+    container_name: ollama-qwen3-mall  # 这里改名了
+    ports:
+      - "11435:11434"  # 端口也错开，防止端口占用冲突
+    volumes:
+      - ollama-model-data-mall:/root/.ollama  # 卷名也区分开
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    networks:
+      - share-net
+volumes:
+  ollama-model-data-mall:
+networks:
+  share-net:
+    external: true
